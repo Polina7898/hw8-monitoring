@@ -1,0 +1,30 @@
+groups:
+  - name: latency_alerts
+    rules:
+      - alert: HighLatencyP95
+        expr: histogram_quantile(0.95, sum(rate(request_latency_seconds_bucket{job="ml_service"}[5m])) by (le)) > 1
+        for: 2m
+        labels:
+          severity: warning
+          team: ml-platform
+        annotations:
+          summary: "High request latency detected"
+          description: "p95 latency превысил 1 секунду в течение 2 минут (текущее значение {{ $value }} c)"
+
+      - alert: HighErrorRate
+        expr: sum(rate(http_requests_total{job="ml_service",status=~"5.."}[5m])) / sum(rate(http_requests_total{job="ml_service"}[5m])) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Error rate выше SLO 1%"
+          description: "Доля 5xx ответов сервиса превышает 1% за последние 5 минут"
+
+      - alert: ServiceDown
+        expr: up{job="ml_service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "ML-сервис недоступен"
+          description: "Prometheus не получает метрик с ml_service в течение 1 минуты"

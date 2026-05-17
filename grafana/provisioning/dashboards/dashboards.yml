@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: HW8 dashboards
+    orgId: 1
+    folder: HW8
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards
